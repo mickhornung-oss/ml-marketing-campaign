@@ -1,0 +1,1165 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Marktkampagne – ML Präsentation</title>
+  <style>
+    :root{
+      --g1:#9ACD32;   /* hellgrün */
+      --g2:#5A8F2D;   /* dunkelgrün */
+      --g3:#B7E36B;   /* limette */
+      --ink:#1f2a1f;
+      --muted:#5a6a5a;
+      --card:rgba(255,255,255,.92);
+      --card2:rgba(255,255,255,.75);
+      --shadow:0 14px 35px rgba(0,0,0,.12);
+      --radius:18px;
+      --line:rgba(90,143,45,.22);
+    }
+
+    /* Hintergrund “wie dein Theme”: links grün, rechts Kurve, helles Zentrum */
+    html,body{height:100%; margin:0; font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif; color:var(--ink);}
+    body{
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 35% 30%, rgba(255,255,255,.95), rgba(240,240,240,.95) 55%, rgba(230,230,230,.95) 100%),
+        linear-gradient(90deg, rgba(154,205,50,.85) 0 7%, rgba(255,255,255,0) 18% 70%, rgba(90,143,45,.80) 93% 100%);
+      position:relative;
+    }
+    body:before{
+      content:"";
+      position:absolute; inset:-40px;
+      background:
+        radial-gradient(ellipse at 95% 55%, rgba(90,143,45,.55), rgba(90,143,45,0) 55%),
+        radial-gradient(ellipse at 92% 50%, rgba(154,205,50,.55), rgba(154,205,50,0) 60%);
+      pointer-events:none;
+      filter: blur(.2px);
+    }
+    body:after{
+      content:"";
+      position:absolute; inset:0;
+      background-image: repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, rgba(0,0,0,0) 1px 4px);
+      pointer-events:none;
+      opacity:.35;
+    }
+
+    /* Deck Layout */
+    .topbar{
+      position:absolute; left:18px; right:18px; top:14px;
+      display:flex; align-items:center; justify-content:space-between;
+      z-index:50;
+    }
+    .brand{
+      display:flex; gap:10px; align-items:center;
+      background:rgba(255,255,255,.65);
+      border:1px solid var(--line);
+      padding:10px 12px; border-radius:999px;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 8px 20px rgba(0,0,0,.08);
+    }
+    .dot{width:12px;height:12px;border-radius:999px;background:var(--g1); box-shadow:0 0 0 4px rgba(154,205,50,.18);}
+    .brand b{font-size:14px;}
+    .brand span{font-size:12px;color:var(--muted);}
+
+    .nav{
+      display:flex; gap:10px; align-items:center;
+      background:rgba(255,255,255,.65);
+      border:1px solid var(--line);
+      padding:8px 10px; border-radius:999px;
+      backdrop-filter: blur(6px);
+    }
+    .btn{
+      cursor:pointer; border:1px solid var(--line);
+      background:rgba(255,255,255,.85);
+      padding:8px 12px; border-radius:999px;
+      font-weight:600; color:var(--ink);
+      box-shadow:0 8px 18px rgba(0,0,0,.06);
+      user-select:none;
+    }
+    .btn:hover{transform: translateY(-1px);}
+    .counter{font-size:12px;color:var(--muted); padding:0 6px;}
+    .progress{
+      width:140px; height:10px; border-radius:999px;
+      background:rgba(0,0,0,.08); overflow:hidden;
+      border:1px solid rgba(0,0,0,.08);
+    }
+    .progress>div{
+      height:100%; width:0%;
+      background: linear-gradient(90deg, var(--g3), var(--g1), var(--g2));
+      border-radius:999px;
+      transition: width .25s ease;
+    }
+
+    .deck{
+      position:absolute; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      padding:64px 24px 22px;
+      z-index:10;
+    }
+
+    .slide{
+      width:min(1200px, 96vw);
+      height:min(675px, 88vh); /* ~16:9 */
+      border-radius: 22px;
+      overflow:hidden;
+      box-shadow: var(--shadow);
+      border:1px solid rgba(255,255,255,.35);
+      background: linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.72));
+      position:relative;
+      display:none;
+    }
+    .slide.active{display:block; animation: pop .22s ease;}
+    @keyframes pop{from{transform:scale(.985); opacity:.0}to{transform:scale(1); opacity:1}}
+
+    .frame{
+      position:absolute; inset:0;
+      display:flex; flex-direction:column;
+      padding:26px 28px 18px;
+      gap:14px;
+    }
+
+    .titleRow{
+      display:flex; align-items:flex-end; justify-content:space-between; gap:16px;
+      padding-bottom:10px;
+      border-bottom:1px solid var(--line);
+    }
+    .titleRow h1{
+      margin:0;
+      font-size:36px;
+      letter-spacing:.2px;
+      color: rgba(40,70,40,.98);
+    }
+    .subtitle{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .content{
+      flex:1;
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap:18px;
+      align-items:stretch;
+      min-height:0;
+    }
+
+    .card{
+      background: var(--card);
+      border:1px solid rgba(0,0,0,.06);
+      border-radius: var(--radius);
+      padding:18px 18px;
+      box-shadow: 0 10px 22px rgba(0,0,0,.07);
+      min-height:0;
+    }
+    .card h2{
+      margin:0 0 10px 0;
+      font-size:18px;
+      color: rgba(35,55,35,.95);
+    }
+    .card ul{margin:10px 0 0 18px; padding:0; color:rgba(25,35,25,.92); line-height:1.35;}
+    .card li{margin:7px 0;}
+    .kv{
+      display:flex; flex-wrap:wrap; gap:10px;
+      margin-top:12px;
+    }
+    .pill{
+      font-size:12px;
+      background: rgba(154,205,50,.14);
+      border:1px solid rgba(154,205,50,.25);
+      padding:6px 10px;
+      border-radius:999px;
+      color: rgba(35,55,35,.95);
+    }
+    .pill b{color:rgba(25,45,25,.98);}
+    .warn{
+      background: rgba(255, 193, 7, .16);
+      border:1px solid rgba(255, 193, 7, .35);
+    }
+    .good{
+      background: rgba(46, 204, 113, .14);
+      border:1px solid rgba(46, 204, 113, .28);
+    }
+
+    .media{
+      background: var(--card2);
+      border:1px solid rgba(0,0,0,.06);
+      border-radius: var(--radius);
+      padding:12px 12px;
+      position:relative;
+      min-height:0;
+      display:flex; flex-direction:column;
+      gap:10px;
+    }
+    .media .label{
+      display:flex; align-items:center; justify-content:space-between;
+      font-size:12px;
+      color:var(--muted);
+      padding:2px 6px;
+    }
+    .media img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      border-radius: 14px;
+      border:1px solid rgba(0,0,0,.06);
+      background:rgba(255,255,255,.8);
+      flex:1;
+      min-height:0;
+    }
+
+    .footer{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:14px;
+      padding-top:8px;
+      border-top:1px solid var(--line);
+    }
+    .merksatz{
+      font-size:13px;
+      color: rgba(30,45,30,.92);
+      font-style: italic;
+    }
+    .hint{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    /* Comic Stickers (SVG Container) */
+    .sticker{
+      position:absolute;
+      right:18px;
+      top:86px;
+      width:110px;
+      opacity:.95;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.12));
+      transform: rotate(2deg);
+      pointer-events:none;
+    }
+
+    /* Kleine Tabelle / Bars */
+    .miniTable{width:100%; border-collapse:collapse; font-size:13px;}
+    .miniTable td{padding:8px 6px; border-bottom:1px solid rgba(0,0,0,.06);}
+    .bar{
+      height:10px; border-radius:999px; background:rgba(0,0,0,.08); overflow:hidden;
+      border:1px solid rgba(0,0,0,.08);
+    }
+    .bar>div{height:100%; width:50%; background: linear-gradient(90deg, var(--g3), var(--g1), var(--g2));}
+
+    /* Title slide robot watermark */
+    .watermark{
+      position:absolute; left:28px; bottom:22px;
+      width:340px; opacity:.22;
+      pointer-events:none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="dot"></div>
+      <div>
+        <b>Marktkampagne – ML-Präsentation</b><br/>
+        <span>20 Folien · Links Text / Rechts Diagramm · Pfeiltasten ⟵ ⟶</span>
+      </div>
+    </div>
+
+    <div class="nav">
+      <div class="btn" id="prevBtn">⟵ Zurück</div>
+      <div class="counter"><span id="cur">1</span>/<span id="tot">20</span></div>
+      <div class="progress"><div id="bar"></div></div>
+      <div class="btn" id="nextBtn">Weiter ⟶</div>
+    </div>
+  </div>
+
+  <div class="deck">
+
+    <!-- ========== SLIDE 1 ========== -->
+    <section class="slide active" data-title="Titel">
+      <div class="frame">
+        <div class="titleRow">
+          <div>
+            <h1>Marktkampagne: ML-gestützte Zielgruppen</h1>
+            <p class="subtitle">Deal-Jäger · Cross-Sell · Segmentierung (Clustering) · Random Forest</p>
+          </div>
+          <div class="hint">Design: Grün/Weiß (dein Schema)</div>
+        </div>
+
+        <div class="content">
+          <div class="card">
+            <h2>Worum geht’s?</h2>
+            <ul>
+              <li>Aus Kundendaten sollen <b>konkrete Marketing-Entscheidungen</b> entstehen.</li>
+              <li>Wir bauen zwei Scores: <b>Deal_Score</b> (Rabatt-Affinität) und <b>Cross_Score</b> (Zusatzkauf-Potenzial).</li>
+              <li>Zusätzlich Segmentierung via <b>Clustering</b>, damit man Gruppen benennen kann.</li>
+            </ul>
+            <div class="kv">
+              <div class="pill"><b>Daten:</b> 2240 Kunden</div>
+              <div class="pill"><b>Features:</b> Demografie + Kaufverhalten + Kanäle</div>
+              <div class="pill warn"><b>Fokus:</b> nachvollziehbar (Lehrer-Style)</div>
+            </div>
+          </div>
+
+          <div class="media">
+            <div class="label"><span>Visual</span><span>Comic-Watermark</span></div>
+            <div style="flex:1; min-height:0; background:rgba(255,255,255,.8); border-radius:14px; border:1px solid rgba(0,0,0,.06); display:flex; align-items:center; justify-content:center; padding:18px;">
+              <div style="max-width:360px; text-align:center;">
+                <div style="font-size:18px; font-weight:700; color:rgba(35,55,35,.92);">„Von Daten → zu Kampagne“</div>
+                <div style="color:var(--muted); margin-top:10px; line-height:1.35;">
+                  Diese HTML-Präsi nutzt deine gespeicherten Diagramme aus <code>assets_presentation/</code>.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          <div class="merksatz">Merksatz: Ein Modell ist nur dann gut, wenn daraus eine Handlung wird.</div>
+          <div class="hint">Navigation: Pfeiltasten oder Buttons</div>
+        </div>
+      </div>
+
+      <!-- Robot watermark (SVG, comic-ish) -->
+      <svg class="watermark" viewBox="0 0 800 260" aria-hidden="true">
+        <g fill="none" stroke="#000" stroke-width="6" opacity="1">
+          <rect x="40" y="60" width="160" height="120" rx="18" fill="#000"/>
+          <circle cx="90" cy="110" r="10" fill="#fff"/>
+          <circle cx="150" cy="110" r="10" fill="#fff"/>
+          <rect x="250" y="80" width="210" height="120" rx="16" fill="#000"/>
+          <line x1="60" y1="200" x2="180" y2="200"/>
+          <line x1="270" y1="220" x2="440" y2="220"/>
+          <rect x="520" y="70" width="220" height="140" rx="14" fill="#000"/>
+          <line x1="540" y1="110" x2="720" y2="110" stroke="#fff"/>
+          <line x1="540" y1="145" x2="690" y2="145" stroke="#fff"/>
+        </g>
+      </svg>
+    </section>
+
+    <!-- ========== SLIDE 2 ========== -->
+    <section class="slide" data-title="Agenda">
+      <div class="frame">
+        <div class="titleRow">
+          <div>
+            <h1>Agenda: Was & Wie</h1>
+            <p class="subtitle">Der rote Faden – Schritt für Schritt wie im Unterricht</p>
+          </div>
+          <div class="hint">20 Folien · ca. 15 Minuten</div>
+        </div>
+        <div class="content">
+          <div class="card">
+            <h2>Vorgehen</h2>
+            <ul>
+              <li><b>1) Datencheck & Cleaning:</b> fehlende Werte, Ausreißer, Logikprüfungen</li>
+              <li><b>2) Feature Engineering:</b> aus Rohdaten verständliche Kennzahlen bauen</li>
+              <li><b>3) Targets definieren:</b> Deal-Jäger & Cross-Sell (Top-Gruppen)</li>
+              <li><b>4) Modelle:</b> Logistische Regression (Baseline) + Threshold-Tuning</li>
+              <li><b>5) Clustering:</b> Segmente finden & benennen</li>
+              <li><b>6) Random Forest:</b> Performance-Check + Importances</li>
+              <li><b>7) Fazit:</b> Kampagnen-Empfehlung aus Ergebnissen ableiten</li>
+            </ul>
+            <div class="kv">
+              <div class="pill warn"><b>Stolpersteine:</b> Leakage, falscher Threshold, „Accuracy-Falle“</div>
+            </div>
+          </div>
+          <div class="media">
+            <div class="label"><span>Visual</span><span>Prozess-Skizze</span></div>
+            <div style="flex:1; min-height:0; border-radius:14px; background:rgba(255,255,255,.85); border:1px solid rgba(0,0,0,.06); padding:16px;">
+              <div style="display:grid; gap:12px;">
+                <div style="padding:10px 12px; border-radius:14px; border:1px solid rgba(154,205,50,.25); background:rgba(154,205,50,.10); font-weight:700;">Daten</div>
+                <div style="padding:10px 12px; border-radius:14px; border:1px solid rgba(154,205,50,.25); background:rgba(154,205,50,.10); font-weight:700;">Cleaning & Features</div>
+                <div style="padding:10px 12px; border-radius:14px; border:1px solid rgba(154,205,50,.25); background:rgba(154,205,50,.10); font-weight:700;">Targets</div>
+                <div style="padding:10px 12px; border-radius:14px; border:1px solid rgba(154,205,50,.25); background:rgba(154,205,50,.10); font-weight:700;">Modelle & Threshold</div>
+                <div style="padding:10px 12px; border-radius:14px; border:1px solid rgba(154,205,50,.25); background:rgba(154,205,50,.10); font-weight:700;">Segmente</div>
+                <div style="padding:10px 12px; border-radius:14px; border:1px solid rgba(154,205,50,.25); background:rgba(154,205,50,.10); font-weight:700;">Kampagne</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="merksatz">Merksatz: Erst Struktur – dann Modell. Sonst baut man auf Sand.</div>
+          <div class="hint">Tipp: Hier kannst du beim Vortrag kurz den Ablauf „ansagen“.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SLIDE 3 ========== -->
+    <section class="slide" data-title="Datenbasis">
+      <div class="frame">
+        <div class="titleRow">
+          <div>
+            <h1>Datenbasis: Marktkampagne.csv</h1>
+            <p class="subtitle">Was liegt vor – und warum ist das relevant?</p>
+          </div>
+          <div class="hint">Datensatz-Check</div>
+        </div>
+        <div class="content">
+          <div class="card">
+            <h2>Was steckt drin?</h2>
+            <ul>
+              <li><b>Demografie:</b> z. B. Geburtsjahr, Einkommen</li>
+              <li><b>Haushalt:</b> Kinder/Teenager</li>
+              <li><b>Kanäle:</b> Web / Katalog / Laden</li>
+              <li><b>Kategorien:</b> Ausgaben je Produktbereich</li>
+            </ul>
+            <div class="kv">
+              <div class="pill"><b>Zeilen:</b> 2240</div>
+              <div class="pill"><b>Spalten:</b> 27</div>
+              <div class="pill good"><b>IDs:</b> 2240/2240 eindeutig</div>
+            </div>
+          </div>
+          <div class="media">
+            <div class="label"><span>Visual</span><span>Datentyp-Mix</span></div>
+            <div style="flex:1; min-height:0; border-radius:14px; background:rgba(255,255,255,.85); border:1px solid rgba(0,0,0,.06); padding:16px;">
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <div style="padding:12px 12px; border-radius:14px; border:1px dashed rgba(0,0,0,.15);">
+                  <b>Numerisch</b><br/><span style="color:var(--muted)">Einkommen, Ausgaben, Käufe, Scores…</span>
+                </div>
+                <div style="padding:12px 12px; border-radius:14px; border:1px dashed rgba(0,0,0,.15);">
+                  <b>Kategorisch</b><br/><span style="color:var(--muted)">Familienstand, Bildung, etc. → OneHot</span>
+                </div>
+                <div style="padding:12px 12px; border-radius:14px; border:1px dashed rgba(0,0,0,.15);">
+                  <b>Konsequenz</b><br/><span style="color:var(--muted)">Wir brauchen eine Pipeline, sonst passieren typische Fehler.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="merksatz">Merksatz: Ein guter Datensatz ist selten „fertig“ – man muss ihn erst fit machen.</div>
+          <div class="hint"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SLIDE 4 ========== -->
+    <section class="slide" data-title="Qualitätscheck">
+      <div class="frame">
+        <div class="titleRow">
+          <div>
+            <h1>Datenqualität: Was war das Problem?</h1>
+            <p class="subtitle">Warum Cleaning kein „Kosmetik-Schritt“ ist</p>
+          </div>
+          <div class="hint">Stolperstein-Fokus</div>
+        </div>
+        <div class="content">
+          <div class="card">
+            <h2>Checks, die wir gemacht haben</h2>
+            <ul>
+              <li><b>Fehlwerte:</b> z. B. Einkommen (vorher 24 fehlend)</li>
+              <li><b>Ausreißer:</b> unrealistische Einkommen / Geburtsjahre</li>
+              <li><b>Logik:</b> „Ausgaben ohne Käufe“ (6 Fälle als Flag)</li>
+              <li><b>Kategorien:</b> Familienstand-Werte vereinheitlicht (7 Anpassungen)</li>
+            </ul>
+            <div class="kv">
+              <div class="pill warn"><b>Stolperstein:</b> Ausreißer verzerren Skalen & Modelle – ohne Warnung.</div>
+            </div>
+          </div>
+          <div class="media">
+            <div class="label"><span>Diagramm</span><span>Cleaning-Überblick</span></div>
+            <img src="assets_presentation/custom_fig_income.png" alt="custom_fig_income.png (Income Histogram)"/>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="merksatz">Merksatz: Wenn die Daten schummeln, schummelt das Modell automatisch mit.</div>
+          <div class="hint">Diagramm zeigt: Income-Outlier (1%/99%) → NaN statt löschen.</div>
+        </div>
+
+        <!-- Sticker: Data detective -->
+        <svg class="sticker" viewBox="0 0 140 140" aria-hidden="true">
+          <defs>
+            <linearGradient id="s1" x1="0" x2="1">
+              <stop offset="0" stop-color="#B7E36B"/><stop offset="1" stop-color="#5A8F2D"/>
+            </linearGradient>
+          </defs>
+          <circle cx="70" cy="70" r="64" fill="url(#s1)" stroke="rgba(0,0,0,.15)" stroke-width="4"/>
+          <circle cx="55" cy="62" r="18" fill="rgba(255,255,255,.9)"/>
+          <circle cx="55" cy="62" r="9" fill="rgba(0,0,0,.35)"/>
+          <rect x="60" y="86" width="54" height="10" rx="5" fill="rgba(255,255,255,.85)"/>
+          <path d="M35 94c12 14 60 14 72 0" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="6" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ========== SLIDE 5 ========== -->
+    <section class="slide" data-title="Cleaning konkret">
+      <div class="frame">
+        <div class="titleRow">
+          <div>
+            <h1>Cleaning-Strategie: Was haben wir geändert?</h1>
+            <p class="subtitle">Und warum wir genau so vorgegangen sind</p>
+          </div>
+          <div class="hint">Regeln statt Bauchgefühl</div>
+        </div>
+        <div class="content">
+          <div class="card">
+            <h2>Wichtige Eingriffe (begründet)</h2>
+            <ul>
+              <li><b>Einkommen:</b> Outlier → NaN (low=23, high=1) → fehlend danach 48</li>
+              <li><b>Geburtsjahr:</b> unplausibel → NaN (3 Fälle)</li>
+              <li><b>Rabattkäufe:</b> wenn Rabattkäufe &gt; Käufe → gekappt (3 Fälle)</li>
+              <li><b>Familienstand:</b> vereinheitlicht (7 Anpassungen)</li>
+            </ul>
+            <div class="kv">
+              <div class="pill"><b>Einkommen 1%/99%:</b> 7.579 / 94.459</div>
+              <div class="pill warn"><b>Stolperstein:</b> aggressives Löschen = Bias</div>
+            </div>
+          </div>
+          <div class="media">
+            <div class="label"><span>Diagramm</span><span>Income-Verteilung (mit Grenzen)</span></div>
+            <img src="assets_presentation/custom_fig_income.png" alt="custom_fig_income.png"/>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="merksatz">Merksatz: Lieber „fehlend“ als „falsch“ – das hält Modelle stabil.</div>
+          <div class="hint"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SLIDE 6 ========== -->
+    <section class="slide" data-title="Feature Engineering">
+      <div class="frame">
+        <div class="titleRow">
+          <div>
+            <h1>Feature Engineering: Warum neue Spalten?</h1>
+            <p class="subtitle">Rohdaten → verständliche Kennzahlen</p>
+          </div>
+          <div class="hint">„Sprache“ fürs Modell</div>
+        </div>
+        <div class="content">
+          <div class="card">
+            <h2>Was wurde gebaut?</h2>
+            <ul>
+              <li><b>Kaeufe_Gesamt</b> = Web + Katalog + Laden</li>
+              <li><b>Ausgaben_Gesamt</b> = Summe über Kategorien</li>
+              <li><b>Rabattanteil</b> = Rabattkäufe / Käufe</li>
+              <li><b>Scores</b> (später): Deal_Score & Cross_Score</li>
+            </ul>
+            <div class="kv">
+              <div class="pill"><b>Ziel:</b> Verhalten komprimieren</div>
+              <div class="pill warn"><b>Stolperstein:</b> zu viele Rohfeatures = Rauschen</div>
+            </div>
+          </div>
+          <div class="media">
+            <div class="label"><span>Diagramm</span><span>Rabattanteil-Verteilung</span></div>
+            <img src="assets_presentation/custom_fig_rabattanteil.png" alt="custom_fig_rabattanteil.png"/>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="merksatz">Merksatz: Gute Features machen komplexe Daten erklärbar.</div>
+          <div class="hint"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SLIDE 7 ========== -->
+    <section class="slide" data-title="Target Deal">
+      <div class="frame">
+        <div class="titleRow">
+          <div>
+            <h1>Target 1: Deal-Jäger definieren</h1>
+            <p class="subtitle">Warum wir eine klare Zielvariable brauchen</p>
+          </div>
+          <div class="hint">Top-Gruppe statt „irgendwie Rabatt“</div>
+        </div>
+        <div class="content">
+          <div class="card">
+            <h2>Definition</h2>
+            <ul>
+              <li>Deal-Jäger = Kunden mit hoher <b>Rabatt-Affinität</b></li>
+              <li>Schwelle: <b>Rabattanteil ≥ 0,40</b></li>
+              <li>Deal-Rate: <b>0,2232</b> (~22%)</li>
+            </ul>
+            <div class="kv">
+              <div class="pill"><b>Warum so?</b> Damit das Modell eine echte Gruppe lernt.</div>
+              <div class="pill warn"><b>Stolperstein:</b> Target zu weich → Modell lernt nichts.</div>
+            </div>
+          </div>
+          <div class="media">
+            <div class="label"><span>Diagramm</span><span>Rabattanteil + Deal-Schwelle</span></div>
+            <img src="assets_presentation/custom_fig_rabattanteil.png" alt="custom_fig_rabattanteil.png"/>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="merksatz">Merksatz: Gutes Target &gt; kompliziertes Modell.</div>
+          <div class="hint"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SLIDE 8 ========== -->
+    <section class="slide" data-title="Deal Modell">
+      <div class="frame">
+        <div class="titleRow">
+          <div>
+            <h1>Deal-Modell: Logistische Regression</h1>
+            <p class="subtitle">Pipeline + Baseline-Modell (erklärbar)</p>
+          </div>
+          <div class="hint">Metriken als Beleg</div>
+        </div>
+        <div class="content">
+          <div class="card">
+            <h2>Warum LogReg?</h2>
+            <ul>
+              <li>Sehr gut erklärbar (Lineares Modell)</li>
+              <li>Liefert <b>Wahrscheinlichkeiten</b> (Score 0–1)</li>
+              <li>Mit class_weight=balanced, weil positive Klasse ~22%</li>
+            </ul>
+            <div class="kv">
+              <div class="pill"><b>ROC-AUC:</b> 0,9364</div>
+              <div class="pill"><b>PR-AUC:</b> 0,7776</div>
+              <div class="pill warn"><b>Stolperstein:</b> Accuracy-Falle bei unbalancierten Klassen</div>
+            </div>
+          </div>
+          <div class="media">
+            <div class="label"><span>Diagramm</span><span>Precision-Recall (Deal)</span></div>
+            <img src="assets_presentation/cell3_fig2.png" alt="cell3_fig2.png (PR Curve Deal)"/>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="merksatz">Merksatz: Erst Baseline – dann stärkere Modelle vergleichen.</div>
+          <div class="hint"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SLIDE 9 ========== -->
+    <section class="slide" data-title="Deal Threshold">
+      <div class="frame">
+        <div class="titleRow">
+          <div>
+            <h1>Deal: Threshold-Tuning</h1>
+            <p class="subtitle">Warum nicht einfach 0,5?</p>
+          </div>
+          <div class="hint">Business-Schraube</div>
+        </div>
+        <div class="content">
+          <div class="card">
+            <h2>Entscheidung</h2>
+            <ul>
+              <li>Wir optimieren auf <b>F0.5</b> (Precision wichtiger)</li>
+              <li>Beste Schwelle: <b>0,85</b></li>
+              <li>Bei 0,85: Precision <b>0,8615</b> | Recall <b>0,56</b></li>
+            </ul>
+            <div class="kv">
+              <div class="pill warn"><b>Stolperstein:</b> Default 0,5 ist selten optimal</div>
+              <div class="pill"><b>Ziel:</b> weniger falsche Kontakte</div>
+            </div>
+          </div>
+          <div class="media">
+            <div class="label"><span>Diagramm</span><span>Threshold-Kurven (Deal)</span></div>
+            <img src="assets_presentation/cell3_fig3.png" alt="cell3_fig3.png (Threshold Deal)"/>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="merksatz">Merksatz: Der Threshold ist Strategie, nicht Mathematik-Zufall.</div>
+          <div class="hint"></div>
+        </div>
+
+        <!-- Sticker: Threshold slider -->
+        <svg class="sticker" viewBox="0 0 140 140" aria-hidden="true">
+          <circle cx="70" cy="70" r="64" fill="rgba(154,205,50,.95)" stroke="rgba(0,0,0,.15)" stroke-width="4"/>
+          <rect x="26" y="68" width="88" height="14" rx="7" fill="rgba(255,255,255,.9)"/>
+          <circle cx="88" cy="75" r="16" fill="rgba(90,143,45,.95)"/>
+          <circle cx="88" cy="75" r="7" fill="rgba(255,255,255,.9)"/>
+          <text x="70" y="48" text-anchor="middle" font-size="14" fill="rgba(0,0,0,.55)" font-weight="700">THRESH</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ========== SLIDE 10 ========== -->
+    <section class="slide" data-title="Deal Ergebnis">
+      <div class="frame">
+        <div class="titleRow">
+          <div>
+            <h1>Deal-Ergebnis: Liste & Kontrolle</h1>
+            <p class="subtitle">Was kommt praktisch raus?</p>
+          </div>
+          <div class="hint">Output-Denke</div>
+        </div>
+        <div class="content">
+          <div class="card">
+            <h2>Was liefern wir?</h2>
+            <ul>
+              <li><b>Deal_Score</b> pro Kunde (0–1) + Deal_Flag</li>
+              <li>Konkrete Selektion: <b>Top-N</b> je Budget</li>
+              <li>Kontrolle über Confusion Matrix</li>
+            </ul>
+            <div class="kv">
+              <div class="pill"><b>CM:</b> [[339, 9], [44, 56]]</div>
+              <div class="pill"><b>Accuracy:</b> 0,88</div>
+              <div class="pill good"><b>Interpretation:</b> sehr wenige False Positives (9)</div>
+            </div>
+          </div>
+          <div class="media">
+            <div class="label"><span>Diagramm</span><span>Score-Verteilung (Deal)</span></div>
+            <img src="assets_presentation/cell3_fig4.png" alt="cell3_fig4.png (Score Histogram Deal)"/>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="merksatz">Merksatz: Ein Score ist nur dann wertvoll, wenn er als Liste nutzbar ist.</div>
+          <div class="hint"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SLIDE 11 ========== -->
+    <section class="slide" data-title="Target Cross">
+      <div class="frame">
+        <div class="titleRow">
+          <div>
+            <h1>Target 2: Cross-Sell definieren</h1>
+            <p class="subtitle">Zusatzkauf-Potenzial statt Rabatt</p>
+          </div>
+          <div class="hint">Ziel: Relevanz</div>
+        </div>
+        <div class="content">
+          <div class="card">
+            <h2>Definition</h2>
+            <ul>
+              <li>Beispiel-Kategorie: <b>Ausgaben_Fisch</b></li>
+              <li>Cross-Schwelle: <b>65,0</b> (Top-Gruppe)</li>
+              <li>Cross-Rate: <b>0,2058</b> (~21%)</li>
+            </ul>
+            <div class="kv">
+              <div class="pill"><b>Warum so?</b> Saubere, messbare Zielvariable</div>
+              <div class="pill warn"><b>Stolperstein:</b> unscharfe Targets → beliebige Empfehlungen</div>
+            </div>
+          </div>
+          <div class="media">
+            <div class="label"><span>Diagramm</span><span>Ausgaben_Fisch + Schwelle</span></div>
+            <img src="assets_presentation/custom_fig_fish.png" alt="custom_fig_fish.png"/>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="merksatz">Merksatz: Cross-Sell heißt „passend“, nicht „billiger“.</div>
+          <div class="hint"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SLIDE 12 ========== -->
+    <section class="slide" data-title="Leakage">
+      <div class="frame">
+        <div class="titleRow">
+          <div>
+            <h1>Wichtigster Stolperstein: Leakage</h1>
+            <p class="subtitle">Wenn das Target im Feature steckt, ist alles wertlos</p>
+          </div>
+          <div class="hint">Prüfpunkt</div>
+        </div>
+        <div class="content">
+          <div class="card">
+            <h2>Was bedeutet Leakage?</h2>
+            <ul>
+              <li>Das Modell „sieht“ die Antwort indirekt schon in den Features.</li>
+              <li>Beispiel: <b>Ausgaben_Fisch</b> als Feature drin lassen, obwohl das genau das Target ist.</li>
+              <li>Lösung: Zielspalte konsequent <b>entfernen</b> (Leakage-Schutz).</li>
+            </ul>
+            <div class="kv">
+              <div class="pill warn"><b>Warum kritisch?</b> Kennzahlen wirken dann künstlich „zu gut“.</div>
+              <div class="pill"><b>Regel:</b> Target-Info niemals ins Training geben.</div>
+            </div>
+          </div>
+          <div class="media">
+            <div class="label"><span>Visual</span><span>Leakage-Skizze</span></div>
+            <div style="flex:1; min-height:0; border-radius:14px; background:rgba(255,255,255,.85); border:1px solid rgba(0,0,0,.06); padding:14px;">
+              <svg viewBox="0 0 640 360" width="100%" height="100%" aria-hidden="true">
+                <defs>
+                  <linearGradient id="lg" x1="0" x2="1">
+                    <stop offset="0" stop-color="#B7E36B"/><stop offset="1" stop-color="#5A8F2D"/>
+                  </linearGradient>
+                </defs>
+                <rect x="30" y="70" width="220" height="110" rx="18" fill="rgba(154,205,50,.16)" stroke="rgba(0,0,0,.12)" stroke-width="3"/>
+                <text x="140" y="125" text-anchor="middle" font-size="20" fill="rgba(0,0,0,.65)" font-weight="700">FEATURES</text>
+
+                <rect x="390" y="70" width="220" height="110" rx="18" fill="rgba(255,193,7,.18)" stroke="rgba(0,0,0,.12)" stroke-width="3"/>
+                <text x="500" y="125" text-anchor="middle" font-size="20" fill="rgba(0,0,0,.65)" font-weight="700">TARGET</text>
+
+                <path d="M250 125 C 300 125, 330 125, 390 125" fill="none" stroke="url(#lg)" stroke-width="10" stroke-linecap="round"/>
+                <text x="320" y="105" text-anchor="middle" font-size="16" fill="rgba(0,0,0,.55)" font-weight="700">OK</text>
+
+                <!-- Leakage arrow (bad) -->
+                <path d="M440 190 C 400 220, 330 240, 250 260" fill="none" stroke="rgba(220,53,69,.75)" stroke-width="10" stroke-linecap="round"/>
+                <text x="345" y="245" text-anchor="middle" font-size="16" fill="rgba(220,53,69,.85)" font-weight="900">LEAKAGE</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="merksatz">Merksatz: Leakage macht „Top-Scores“ zu Spielzeug.</div>
+          <div class="hint"></div>
+        </div>
+
+        <!-- Sticker: Gremlin -->
+        <svg class="sticker" viewBox="0 0 140 140" aria-hidden="true">
+          <circle cx="70" cy="70" r="64" fill="rgba(90,143,45,.95)" stroke="rgba(0,0,0,.15)" stroke-width="4"/>
+          <path d="M40 88c0-22 16-40 30-40s30 18 30 40-16 26-30 26-30-4-30-26z" fill="rgba(255,255,255,.88)"/>
+          <circle cx="58" cy="78" r="6" fill="rgba(0,0,0,.45)"/>
+          <circle cx="82" cy="78" r="6" fill="rgba(0,0,0,.45)"/>
+          <path d="M58 96c8 8 16 8 24 0" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="6" stroke-linecap="round"/>
+          <text x="70" y="40" text-anchor="middle" font-size="14" fill="rgba(255,255,255,.92)" font-weight="900">LEAK</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ========== SLIDE 13 ========== -->
+    <section class="slide" data-title="Cross Modell">
+      <div class="frame">
+        <div class="titleRow">
+          <div>
+            <h1>Cross-Sell-Modell: LogReg</h1>
+            <p class="subtitle">Gleicher Prozess, anderes Target</p>
+          </div>
+          <div class="hint">Vergleichbar & sauber</div>
+        </div>
+        <div class="content">
+          <div class="card">
+            <h2>Warum gleicher Prozess?</h2>
+            <ul>
+              <li>Pipeline bleibt identisch → Ergebnisse bleiben <b>vergleichbar</b>.</li>
+              <li>Wir bewerten wieder mit ROC-AUC und PR-AUC (wichtiger bei unbalancierten Klassen).</li>
+            </ul>
+            <div class="kv">
+              <div class="pill"><b>ROC-AUC:</b> 0,9784</div>
+              <div class="pill"><b>PR-AUC:</b> 0,9180</div>
+              <div class="pill good"><b>Interpretation:</b> sehr gut trennbar</div>
+            </div>
+          </div>
+          <div class="media">
+            <div class="label"><span>Diagramm</span><span>Precision-Recall (Cross)</span></div>
+            <img src="assets_presentation/cell5_fig2.png" alt="cell5_fig2.png (PR Curve Cross)"/>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="merksatz">Merksatz: Konstanz im Prozess macht Aussagen belastbar.</div>
+          <div class="hint"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SLIDE 14 ========== -->
+    <section class="slide" data-title="Cross Threshold">
+      <div class="frame">
+        <div class="titleRow">
+          <div>
+            <h1>Cross: Threshold-Tuning</h1>
+            <p class="subtitle">Trefferquote hoch halten (relevante Angebote)</p>
+          </div>
+          <div class="hint">F0.5-Logik</div>
+        </div>
+        <div class="content">
+          <div class="card">
+            <h2>Schwellen-Entscheidung</h2>
+            <ul>
+              <li>Beste Schwelle: <b>0,75</b></li>
+              <li>Precision: <b>0,9067</b> | Recall: <b>0,7391</b></li>
+              <li>CM: <b>[[349, 7], [24, 68]]</b></li>
+            </ul>
+            <div class="kv">
+              <div class="pill warn"><b>Stolperstein:</b> zu lockere Schwelle = irrelevante Empfehlungen</div>
+              <div class="pill good"><b>Plus:</b> sehr wenige False Positives (7)</div>
+            </div>
+          </div>
+          <div class="media">
+            <div class="label"><span>Diagramm</span><span>Threshold-Kurven (Cross)</span></div>
+            <img src="assets_presentation/cell5_fig3.png" alt="cell5_fig3.png (Threshold Cross)"/>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="merksatz">Merksatz: Lieber weniger empfehlen – dafür passend.</div>
+          <div class="hint"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SLIDE 15 ========== -->
+    <section class="slide" data-title="Cross Output">
+      <div class="frame">
+        <div class="titleRow">
+          <div>
+            <h1>Cross-Ergebnis: Score → Kampagnenliste</h1>
+            <p class="subtitle">Wie man daraus eine Aktion macht</p>
+          </div>
+          <div class="hint">Operationalisierung</div>
+        </div>
+        <div class="content">
+          <div class="card">
+            <h2>Praktischer Output</h2>
+            <ul>
+              <li><b>Cross_Score</b> pro Kunde + Flag</li>
+              <li>Top-N Auswahl je nach Budget</li>
+              <li>Kombinierbar mit Segmenten (Cluster) für Kampagnenlogik</li>
+            </ul>
+            <div class="kv">
+              <div class="pill"><b>Accuracy:</b> 0,93</div>
+              <div class="pill"><b>Schwelle:</b> 0,75</div>
+              <div class="pill warn"><b>Stolperstein:</b> „nur Metriken“ ohne Liste ist nutzlos</div>
+            </div>
+          </div>
+          <div class="media">
+            <div class="label"><span>Diagramm</span><span>Score-Verteilung (Cross)</span></div>
+            <img src="assets_presentation/cell5_fig4.png" alt="cell5_fig4.png (Score Histogram Cross)"/>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="merksatz">Merksatz: Score = Ranking. Ranking = Kampagnen-Plan.</div>
+          <div class="hint"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SLIDE 16 ========== -->
+    <section class="slide" data-title="Clustering warum">
+      <div class="frame">
+        <div class="titleRow">
+          <div>
+            <h1>Warum Clustering zusätzlich?</h1>
+            <p class="subtitle">Modelle entscheiden – Cluster erklären</p>
+          </div>
+          <div class="hint">Story fürs Reporting</div>
+        </div>
+        <div class="content">
+          <div class="card">
+            <h2>Nutzen von Segmenten</h2>
+            <ul>
+              <li>Marketing denkt in <b>Gruppen</b> (Standard vs Premium etc.)</li>
+              <li>Clustering ist unüberwacht: findet Muster ohne Target</li>
+              <li>Wir verwenden: <b>32 numerische</b> + <b>3 kategorische</b> Features</li>
+              <li>Scores (Deal/Cross) fließen ein, damit Segmente & Modelle zusammenpassen</li>
+            </ul>
+            <div class="kv">
+              <div class="pill warn"><b>Stolperstein:</b> Cluster ohne Benennung sind wertlos</div>
+            </div>
+          </div>
+          <div class="media">
+            <div class="label"><span>Diagramm</span><span>k-Auswahl (Elbow)</span></div>
+            <img src="assets_presentation/cell7_fig1.png" alt="cell7_fig1.png (Elbow)"/>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="merksatz">Merksatz: Clustering ist die Übersetzung von Daten in Kundentypen.</div>
+          <div class="hint"></div>
+        </div>
+
+        <!-- Sticker: Group icon -->
+        <svg class="sticker" viewBox="0 0 140 140" aria-hidden="true">
+          <circle cx="70" cy="70" r="64" fill="rgba(154,205,50,.95)" stroke="rgba(0,0,0,.15)" stroke-width="4"/>
+          <circle cx="52" cy="68" r="16" fill="rgba(255,255,255,.9)"/>
+          <circle cx="86" cy="68" r="16" fill="rgba(255,255,255,.9)"/>
+          <rect x="36" y="90" width="68" height="18" rx="9" fill="rgba(90,143,45,.9)"/>
+          <text x="70" y="103" text-anchor="middle" font-size="14" fill="rgba(255,255,255,.92)" font-weight="900">SEG</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ========== SLIDE 17 ========== -->
+    <section class="slide" data-title="k Wahl">
+      <div class="frame">
+        <div class="titleRow">
+          <div>
+            <h1>k wählen: nicht raten, messen</h1>
+            <p class="subtitle">Silhouette / Elbow als Begründung</p>
+          </div>
+          <div class="hint">Begründbar im Vortrag</div>
+        </div>
+        <div class="content">
+          <div class="card">
+            <h2>Warum Silhouette?</h2>
+            <ul>
+              <li>Misst grob: Wie gut sind Cluster getrennt?</li>
+              <li>Wir testen k = 2…10 und wählen das beste.</li>
+              <li>In deinem Plot: bestes Ergebnis bei <b>k=2</b>.</li>
+            </ul>
+            <div class="kv">
+              <div class="pill"><b>k-Entscheidung:</b> 2</div>
+              <div class="pill warn"><b>Stolperstein:</b> zu viele Cluster → schwer erklärbar</div>
+            </div>
+          </div>
+          <div class="media">
+            <div class="label"><span>Diagramm</span><span>Silhouette-Scores</span></div>
+            <img src="assets_presentation/cell7_fig2.png" alt="cell7_fig2.png (Silhouette)"/>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="merksatz">Merksatz: k ist eine Entscheidung – und braucht eine Begründung.</div>
+          <div class="hint"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SLIDE 18 ========== -->
+    <section class="slide" data-title="Cluster Visualisierung">
+      <div class="frame">
+        <div class="titleRow">
+          <div>
+            <h1>Cluster sichtbar machen (PCA)</h1>
+            <p class="subtitle">2D-Projektion: so kann man Segmente „sehen“</p>
+          </div>
+          <div class="hint">Anschaulich</div>
+        </div>
+        <div class="content">
+          <div class="card">
+            <h2>Interpretation</h2>
+            <ul>
+              <li>PCA reduziert viele Features auf 2 Achsen – nur zur Visualisierung.</li>
+              <li>Farben zeigen die 2 Cluster.</li>
+              <li>Nächster Schritt: Cluster <b>profilen</b> und <b>benennen</b>.</li>
+            </ul>
+            <div class="kv">
+              <div class="pill warn"><b>Stolperstein:</b> PCA ist Erklärung, nicht Training</div>
+            </div>
+          </div>
+          <div class="media">
+            <div class="label"><span>Diagramm</span><span>PCA-Scatter (Cluster)</span></div>
+            <img src="assets_presentation/cell7_fig3.png" alt="cell7_fig3.png (PCA Scatter)"/>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="merksatz">Merksatz: Cluster werden erst durch Profiling zu „Kundentypen“.</div>
+          <div class="hint"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SLIDE 19 ========== -->
+    <section class="slide" data-title="Cluster Profil">
+      <div class="frame">
+        <div class="titleRow">
+          <div>
+            <h1>Clusterprofil & Benennung</h1>
+            <p class="subtitle">Zahlen übersetzen in Marketing-Logik</p>
+          </div>
+          <div class="hint">von 0/1 → „Standard/Premium“</div>
+        </div>
+        <div class="content">
+          <div class="card">
+            <h2>Kernergebnis (aus deinem Output)</h2>
+            <ul>
+              <li><b>Cluster 0 (Standard):</b> n=1289, Ø Ausgaben 169,12, Deal-Rate 0,2389</li>
+              <li><b>Cluster 1 (High-Spend/Cross):</b> n=951, Ø Ausgaben 1197,67, Cross-Rate 0,4206</li>
+              <li>Marketinglogik: Rabatt eher Cluster 0, Cross-Sell eher Cluster 1</li>
+            </ul>
+            <div class="kv">
+              <div class="pill"><b>Ø Deal_Score:</b> 0,544 vs 0,065</div>
+              <div class="pill"><b>Ø Cross_Score:</b> 0,056 vs 0,624</div>
+              <div class="pill warn"><b>Stolperstein:</b> Benennung muss fachlich Sinn ergeben</div>
+            </div>
+          </div>
+
+          <div class="media">
+            <div class="label"><span>Visual</span><span>Mini-Vergleich (Bars)</span></div>
+            <div style="flex:1; min-height:0; background:rgba(255,255,255,.85); border-radius:14px; border:1px solid rgba(0,0,0,.06); padding:14px; overflow:auto;">
+              <table class="miniTable">
+                <tr><td><b>Clustergröße</b></td><td style="width:55%;">
+                  <div class="bar"><div style="width:57%;"></div></div>
+                  <div style="font-size:12px;color:var(--muted);margin-top:6px;">C0=1289 · C1=951</div>
+                </td></tr>
+                <tr><td><b>Ø Ausgaben</b></td><td>
+                  <div class="bar"><div style="width:18%;"></div></div>
+                  <div style="font-size:12px;color:var(--muted);margin-top:6px;">169 vs 1198</div>
+                </td></tr>
+                <tr><td><b>Deal-Rate</b></td><td>
+                  <div class="bar"><div style="width:48%;"></div></div>
+                  <div style="font-size:12px;color:var(--muted);margin-top:6px;">0,2389 vs 0,0053</div>
+                </td></tr>
+                <tr><td><b>Cross-Rate</b></td><td>
+                  <div class="bar"><div style="width:84%;"></div></div>
+                  <div style="font-size:12px;color:var(--muted);margin-top:6px;">0,0000 vs 0,4206</div>
+                </td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          <div class="merksatz">Merksatz: Mathe wird erst nützlich, wenn man sie benennen und nutzen kann.</div>
+          <div class="hint"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SLIDE 20 ========== -->
+    <section class="slide" data-title="RF + Fazit">
+      <div class="frame">
+        <div class="titleRow">
+          <div>
+            <h1>Random Forest & Fazit</h1>
+            <p class="subtitle">Performance-Check + was wir empfehlen</p>
+          </div>
+          <div class="hint">Der Abschluss</div>
+        </div>
+        <div class="content">
+          <div class="card">
+            <h2>Random Forest (Deal) – warum zusätzlich?</h2>
+            <ul>
+              <li>LogReg ist linear – RF kann <b>nichtlineare Muster</b>.</li>
+              <li>RF liefert: ROC-AUC <b>0,9732</b> | PR-AUC <b>0,9118</b></li>
+              <li>Beste Schwelle <b>0,65</b> → Precision <b>0,8929</b> | Recall <b>0,75</b></li>
+            </ul>
+
+            <h2 style="margin-top:14px;">Fazit / Kampagnen-Empfehlung</h2>
+            <ul>
+              <li><b>Deal-Kampagne:</b> Cluster 0 (Standard) + hoher Deal_Score</li>
+              <li><b>Cross-Kampagne:</b> Cluster 1 (High-Spend/Cross) + hoher Cross_Score</li>
+              <li>Stolpersteine, die wir aktiv gelöst haben: <b>Leakage</b>, <b>Threshold</b>, <b>Pipeline</b></li>
+            </ul>
+
+            <div class="kv">
+              <div class="pill"><b>Deal LogReg:</b> PR-AUC 0,7776</div>
+              <div class="pill"><b>Cross LogReg:</b> PR-AUC 0,9180</div>
+              <div class="pill good"><b>RF Deal:</b> Recall 0,75 bei Precision 0,893</div>
+            </div>
+          </div>
+
+          <div class="media">
+            <div class="label"><span>Diagramm</span><span>Feature-Importances (RF)</span></div>
+            <img src="assets_presentation/cell10_fig6.png" alt="cell10_fig6.png (Feature Importances RF)"/>
+          </div>
+        </div>
+
+        <div class="footer">
+          <div class="merksatz">Merksatz: Das beste Modell ist das, das die beste Entscheidung ermöglicht.</div>
+          <div class="hint">Nächster Schritt: A/B-Test im echten Marketing.</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const tot = slides.length;
+    document.getElementById('tot').textContent = tot;
+
+    function show(i){
+      i = Math.max(0, Math.min(tot-1, i));
+      slides.forEach(s => s.classList.remove('active'));
+      slides[i].classList.add('active');
+
+      document.getElementById('cur').textContent = (i+1);
+      document.getElementById('bar').style.width = ((i+1)/tot*100).toFixed(1) + '%';
+
+      // Hash fürs Wiederfinden
+      location.hash = '#'+(i+1);
+    }
+
+    function curIndex(){
+      return slides.findIndex(s => s.classList.contains('active'));
+    }
+
+    document.getElementById('prevBtn').onclick = () => show(curIndex()-1);
+    document.getElementById('nextBtn').onclick = () => show(curIndex()+1);
+
+    window.addEventListener('keydown', (e)=>{
+      if(e.key==='ArrowLeft') show(curIndex()-1);
+      if(e.key==='ArrowRight' || e.key===' ') show(curIndex()+1);
+    });
+
+    // Start via Hash
+    const h = parseInt((location.hash||'').replace('#',''),10);
+    if(!isNaN(h) && h>=1 && h<=tot) show(h-1);
+  </script>
+</body>
+</html>
