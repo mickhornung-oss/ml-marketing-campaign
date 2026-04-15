@@ -46,9 +46,22 @@ ml-marketing-campaign/
 - Welche Kunden reagieren besonders stark auf Rabatte?
 - Wo bestehen Cross-Selling-Chancen?
 
-## Ausführung
+## ⚡ Quick Start
+
 ```bash
+# 1. Dependencies installieren
 pip install -r requirements.txt
+
+# 2. Notebooks öffnen
 jupyter notebook
 ```
-Notebook-Reihenfolge: Beginne mit den `00_*`-Notebooks zur Vorbereitung, dann folge den nummerierten Analyseschritten zum Verständnis der ML-Modelle.
+
+**Notebook-Reihenfolge:**
+1. `00_preparation.ipynb` — Datenvorbereitung
+2. `00_initial_exploration.ipynb` — Erste Explorationn
+3. `01_eda_and_baseline.ipynb` — EDA + Baseline-Modelle
+4. `02_churn_analysis.ipynb` — Churn-Vorhersage
+5. `03_deal_hunter_analysis.ipynb` — Deal-Jäger erkennen
+6. `04_cross_sell_analysis.ipynb` — Cross-Selling-Chancen
+
+✅ Alle Notebooks sind in `notebooks/` organisiert | HTML-Präsentation in `reports/`
