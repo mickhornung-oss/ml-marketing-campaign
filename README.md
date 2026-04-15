@@ -1,37 +1,54 @@
-# ML Marktkampagnen-Optimierung
+# ML Marketing Campaign
 
-Gezieltes Marketing statt Streuverlust. In diesem Projekt wird ein Kundendatensatz (~2.200 Einträge) analysiert, um durch Machine Learning datenbasierte Business-Entscheidungen zu treffen. Statt alle Kunden pauschal anzuschreiben, werden Kunden anhand von ML-Scores segmentiert, um Deal-Jäger zu identifizieren, Cross-Selling-Potenziale aufzudecken und Churn (Kundenabwanderung) vorherzusagen.
+Machine-Learning-Projekt zur Analyse einer Marketingkampagne mit Fokus auf **Churn-Vorhersage**, **Deal-Jäger-Erkennung** und **Cross-Selling-Potenzial**.
 
-## Projektziel
-Anhand eines Kundendatensatzes drei ML-Modelle entwickeln und kombinieren – für Churn-Vorhersage, Deal-Klassifikation und Cross-Selling-Identifikation.
+## Ziel
+Dieses Projekt untersucht, welche Kundengruppen besonders wertvoll, abwanderungsgefährdet oder stark rabattgetrieben sind. Ziel ist es, Marketingmaßnahmen datenbasiert zu priorisieren und Budgets gezielter einzusetzen.
 
-## Dateien
+## Inhalte
+- Explorative Datenanalyse auf Basis von `Marktkampagne.csv`
+- Mehrere Jupyter Notebooks für unterschiedliche Fragestellungen
+- Präsentation als PowerPoint und HTML-Version
+- Aufgabenstellung als PDF
 
-### Haupt-Notebooks
-- `ML-1.ipynb` – Haupt-Analyse-Notebook
-- `Abschluss 1.ipynb` – Abschluss-Notebook
+## Projektstruktur
+```text
+ml-marketing-campaign/
+├── data/
+│   └── Marktkampagne.csv
+├── notebooks/
+│   ├── 00_preparation.ipynb
+│   ├── 00_initial_exploration.ipynb
+│   ├── 01_eda_and_baseline.ipynb
+│   ├── 02_churn_analysis.ipynb
+│   ├── 03_deal_hunter_analysis.ipynb
+│   └── 04_cross_sell_analysis.ipynb
+├── reports/
+│   ├── marketing-campaign-presentation.pptx
+│   ├── marketing-campaign-presentation.html
+│   └── project-brief.pdf
+├── images/
+│   ├── campaign-visual-01.jpg
+│   └── campaign-visual-02.jpg
+├── requirements.txt
+└── README.md
+```
 
-### Maschinen-Lern-Übungen
-- `Maschi 1 Churn.ipynb` – Churn-Vorhersage
-- `Maschi 2 Deal Jäger.ipynb` – Deal-Klassifikation
-- `Maschi 3 Cross.ipynb` – Cross-Selling
-
-### Weitere Notebooks
-- `Pro1.ipynb` – Vorbereitungs-Notebook
-
-### Daten & Präsentation
-- `Marktkampagne.csv` – Datensatz (Marketing-Kampagnendaten)
-- `Abschluss ML.pptx` – Ergebnispräsentation
-- `marktkampagne_praesi.html` – HTML-Präsentation
-- `Projekt-Aufgabe Machine Learning Jan 2026.pdf` – Aufgabenstellung
-- `1000024865.jpg`, `1000024866.jpg` – Ergänzende Abbildungen
-
-## Lokale Ausführung
-1. Python + Jupyter installieren
-2. Abhängigkeiten installieren: `pip install -r requirements.txt`
-3. Gewünschtes Notebook öffnen und ausführen
-
-## Tech Stack
+## Verwendete Technologien
 - Python
+- pandas
+- scikit-learn
 - Jupyter Notebook
-- pandas · numpy · scikit-learn · matplotlib
+- matplotlib
+
+## Erkenntnisinteresse
+- Welche Kunden zeigen erhöhtes Churn-Risiko?
+- Welche Kunden reagieren besonders stark auf Rabatte?
+- Wo bestehen Cross-Selling-Chancen?
+
+## Ausführung
+```bash
+pip install -r requirements.txt
+jupyter notebook
+```
+Notebook-Reihenfolge: Beginne mit den `00_*`-Notebooks zur Vorbereitung, dann folge den nummerierten Analyseschritten zum Verständnis der ML-Modelle.
